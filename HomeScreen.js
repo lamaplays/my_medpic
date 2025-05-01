@@ -53,7 +53,7 @@ const HomeScreen = () => {
     });
 
     try {
-      const response = await fetch('http://192.168.0.114:5000/api/upload', {
+      const response = await fetch('http://192.168.0.107:5000/api/upload', {
         method: 'POST',
         body: formData,
         headers: { 'Content-Type': 'multipart/form-data' },
