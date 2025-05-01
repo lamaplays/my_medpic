@@ -10,10 +10,11 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import styles from './style';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [extractedText, setExtractedText] = useState('');
   const [medicationInfo, setMedicationInfo] = useState([]);
+  const [expandedCards, setExpandedCards] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -53,7 +54,7 @@ const HomeScreen = () => {
     });
 
     try {
-      const response = await fetch('http://192.168.0.114:5000/api/upload', {
+      const response = await fetch('http://192.168.0.106:5000/api/upload', {
         method: 'POST',
         body: formData,
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -74,14 +75,13 @@ const HomeScreen = () => {
       Alert.alert('Error', 'Failed to upload image.');
     }
   };
-    const [expandedCards, setExpandedCards] = useState({});
-const toggleExpanded = (index) => {
-  setExpandedCards((prev) => ({
-    ...prev,
-    [index]: !prev[index],
-  }));
-};
 
+  const toggleExpanded = (index) => {
+    setExpandedCards((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
   return (
     <View style={styles.container}>
@@ -111,56 +111,52 @@ const toggleExpanded = (index) => {
                   Medication Results:
                 </Text>
                 {medicationInfo.map((drug, index) => (
-  <View
-    key={`med-${index}`}
-    style={{
-      padding: 12,
-      marginBottom: 15,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 10,
-    }}
-  >
-    {drug.drug_name && (
-      <Text style={{ fontWeight: 'bold' }}>📌 Name: {drug.drug_name}</Text>
-    )}
-    {drug.generic_name && <Text>💊 Generic: {drug.generic_name}</Text>}
-    {drug.medical_condition && <Text>🩺 Condition: {drug.medical_condition}</Text>}
-    {drug.drug_classes && <Text>🧪 Drug Class: {drug.drug_classes}</Text>}
-    {drug.pregnancy_category && <Text>🚼 Pregnancy Category: {drug.pregnancy_category}</Text>}
-    {drug.rx_otc && <Text>💊 Rx/OTC: {drug.rx_otc}</Text>}
-    {drug.relevance_score !== undefined && (
-      <Text>📈 Relevance Score: {drug.relevance_score}</Text>
-    )}
-
-    {/* Side effects with toggle */}
-    {drug.side_effects && (
-      <Text>
-        Side Effects:{' '}
-        {expandedCards[index] || drug.side_effects.length <= 100
-          ? drug.side_effects
-          : `${drug.side_effects.slice(0, 100)}... `}
-        {drug.side_effects.length > 100 && (
-          <Text
-            onPress={() => toggleExpanded(index)}
-            style={{ color: 'blue', fontWeight: 'bold' }}
-          >
-            {expandedCards[index] ? ' See less' : ' See more'}
-          </Text>
-        )}
-      </Text>
-    )}
-
-    <Text style={{ color: drug.SFDA_approved === 'Yes' ? 'green' : 'red' }}>
-      SFDA Approved: {drug.SFDA_approved}
-    </Text>
-
-    {drug.drug_link && (
-      <Text style={{ color: 'blue' }}>🔗 Link: {drug.drug_link}</Text>
-    )}
-  </View>
-))}
-
-
+                  <View
+                    key={`med-${index}`}
+                    style={{
+                      padding: 12,
+                      marginBottom: 15,
+                      backgroundColor: '#f0f0f0',
+                      borderRadius: 10,
+                    }}
+                  >
+                    {drug.drug_name && (
+                      <Text style={{ fontWeight: 'bold' }}>📌 Name: {drug.drug_name}</Text>
+                    )}
+                    {drug.generic_name && <Text>💊 Generic: {drug.generic_name}</Text>}
+                    {drug.medical_condition && <Text>🩺 Condition: {drug.medical_condition}</Text>}
+                    {drug.drug_classes && <Text>🧪 Drug Class: {drug.drug_classes}</Text>}
+                    {drug.pregnancy_category && (
+                      <Text>🚼 Pregnancy Category: {drug.pregnancy_category}</Text>
+                    )}
+                    {drug.rx_otc && <Text>💊 Rx/OTC: {drug.rx_otc}</Text>}
+                    {drug.relevance_score !== undefined && (
+                      <Text>📈 Relevance Score: {drug.relevance_score}</Text>
+                    )}
+                    {drug.side_effects && (
+                      <Text>
+                        Side Effects:{' '}
+                        {expandedCards[index] || drug.side_effects.length <= 100
+                          ? drug.side_effects
+                          : `${drug.side_effects.slice(0, 100)}... `}
+                        {drug.side_effects.length > 100 && (
+                          <Text
+                            onPress={() => toggleExpanded(index)}
+                            style={{ color: 'blue', fontWeight: 'bold' }}
+                          >
+                            {expandedCards[index] ? ' See less' : ' See more'}
+                          </Text>
+                        )}
+                      </Text>
+                    )}
+                    <Text style={{ color: drug.SFDA_approved === 'Yes' ? 'green' : 'red' }}>
+                      SFDA Approved: {drug.SFDA_approved}
+                    </Text>
+                    {drug.drug_link && (
+                      <Text style={{ color: 'blue' }}>🔗 Link: {drug.drug_link}</Text>
+                    )}
+                  </View>
+                ))}
               </View>
             ) : (
               <Text style={{ marginTop: 10, color: '#999' }}>
@@ -169,6 +165,21 @@ const toggleExpanded = (index) => {
             )}
           </View>
         ) : null}
+
+        {/* 🔽 ADDED NAVIGATION BUTTONS HERE 🔽 */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('Add Pill')}
+        >
+          <Text style={styles.buttonText}>➕ Add Pill to Schedule</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('Schedule')}
+        >
+          <Text style={styles.buttonText}>📅 View Full Schedule</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
