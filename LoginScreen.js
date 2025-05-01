@@ -15,7 +15,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false); 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://192.168.0.102:5000/api/login', {
+      const response = await fetch('http://192.168.0.114:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -25,7 +25,6 @@ const LoginScreen = ({ navigation }) => {
 
       if (data.success) {
         console.log('Login successful:', data);
-        Alert.alert('Success', 'You are logged in!');
         navigation.navigate('Home'); // optional
       } else {
         Alert.alert('Login Failed', data.message);

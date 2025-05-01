@@ -7,7 +7,7 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     try {
-      const response = await fetch('http://192.168.0.102:5000/api/signup', {
+      const response = await fetch('http://192.168.0.114:5000/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

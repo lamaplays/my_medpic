@@ -1,15 +1,21 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from filenamelol import Pill, db
-from ocr import process_image, extract_medication_info
+from ocr import process_image, query_chromadb
 from werkzeug.utils import secure_filename
 import os
 
 pill = Blueprint('pill', __name__)
 UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+sfda_brand_set = set()
+
+def set_sfda_brands(brand_set):
+    global sfda_brand_set
+    sfda_brand_set = brand_set
 
 @pill.route('/api/upload', methods=['POST'])
-@login_required
 def upload():
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
@@ -23,9 +29,14 @@ def upload():
     file.save(filepath)
 
     text = process_image(filepath)
-    meds = extract_medication_info(text)
+    meds = query_chromadb(text, sfda_brand_set)
 
-    return jsonify({"text": text, "medication_info": meds})
+    return jsonify({
+        "ocr_text": text,              # ✅ key renamed to match frontend
+        "medication_info": meds        # ✅ meds must have correct field names (see ocr.py)
+    })
+
+
 
 @pill.route('/api/pills', methods=['POST'])
 @login_required
